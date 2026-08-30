@@ -1,0 +1,6 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ondari mark">
+  <defs><clipPath id="ring"><circle cx="50" cy="50" r="39"/></clipPath></defs>
+  <circle cx="50" cy="50" r="39" fill="none" stroke="#1E3E37" stroke-width="7"/>
+  <g clip-path="url(#ring)"><path d="M4 53 C29 40 40 40 50 50 C60 60 71 60 96 47" fill="none" stroke="#1E3E37" stroke-width="6" stroke-linecap="round"/></g>
+  <circle cx="63" cy="33" r="6.7" fill="#2E9BB4"/>
+</svg>

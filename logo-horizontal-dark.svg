@@ -1,0 +1,10 @@
+<svg viewBox="0 0 340 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ondari logo">
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=DM Serif Display:opsz,wght@9..144,600&amp;display=swap');.wmd{font-family:'DM Serif Display',serif;font-weight:600;font-size:54px;letter-spacing:-1px}</style>
+    <clipPath id="rd"><circle cx="48" cy="48" r="31"/></clipPath>
+  </defs>
+  <circle cx="48" cy="48" r="31" fill="none" stroke="#EEE8DB" stroke-width="5.6"/>
+  <g clip-path="url(#rd)"><path d="M12 51 C34 41 42 41 48 48 C55 56 63 56 84 45" fill="none" stroke="#EEE8DB" stroke-width="4.8" stroke-linecap="round"/></g>
+  <circle cx="59" cy="34" r="5.3" fill="#3FB0C8"/>
+  <text x="94" y="66" class="wmd" fill="#EEE8DB">Ondari</text>
+</svg>

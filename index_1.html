@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ondari — AI Proxy for Slack | Operate like ten</title>
+<meta name="description" content="Ondari is an AI proxy that lives in your Slack channel. It answers on your behalf from your docs, email, and history — and only taps you in when it genuinely needs a human.">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Lexend:wght@300;400;500;600;700;800&family=Tiro+Gurmukhi:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --spruce:#1E3E37;--spruce-deep:#16302B;
+    --paper:#EEE8DB;--paper-2:#F2ECE0;--card:#F6F1E7;
+    --blue:#2E9BB4;--blue-br:#3FB0C8;--blue-deep:#26869B;
+    --coral:#D98A78;--coral-br:#E29C8C;
+    --peri:#8E86B0;--peri-br:#A49CC4;
+    --sage:#93A99B;
+    --text:#22261F;--text-soft:#5A5F54;
+    --line:rgba(30,62,55,.14);--line-strong:rgba(30,62,55,.26);
+    --paper-line:rgba(238,232,219,.16);--paper-soft:rgba(238,232,219,.68);
+    --fd:"DM Serif Display",Georgia,serif;--fb:"Lexend",sans-serif;--fm:"Lexend",sans-serif;--fs:"Tiro Gurmukhi",Georgia,serif;
+    --wrap:1280px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{font-family:var(--fb);background:var(--paper);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px}
+  h1,h2,h3{font-family:var(--fd);font-weight:600;line-height:1.04;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .eyebrow{font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-deep)}
+  section .eyebrow{display:inline-block;margin-bottom:18px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--fb);font-weight:600;font-size:15px;padding:13px 22px;border-radius:9px;transition:.18s ease;cursor:pointer;border:1px solid transparent}
+  .btn-primary{background:var(--blue);color:#052a32}
+  .btn-primary:hover{background:var(--blue-deep);transform:translateY(-1px)}
+  .btn-ghost{border-color:var(--line-strong);color:var(--spruce)}
+  .btn-ghost:hover{background:rgba(30,62,55,.05)}
+  .arrow{transition:transform .18s ease}
+  .btn:hover .arrow{transform:translateX(3px)}
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(238,232,219,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--fd);font-weight:600;font-size:23px;letter-spacing:-.01em;color:var(--spruce)}
+  .brand .mark{width:22px;height:22px;flex:0 0 auto}
+  .nav-links{display:flex;align-items:center;gap:30px}
+  .nav-links a{font-size:14.5px;color:var(--text-soft);font-weight:500}
+  .nav-links a:hover{color:var(--spruce)}
+  .nav-cta{display:flex;align-items:center;gap:14px}
+  @media(max-width:860px){.nav-links{display:none}.nav-cta .ghost-link{display:none}}
+  .hero{padding:76px 0 40px}
+  .hero-grid{display:grid;grid-template-columns:.78fr 1.22fr;gap:56px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:9px;font-family:var(--fm);font-size:11.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--spruce);border:1px solid var(--line-strong);border-radius:100px;padding:7px 14px;margin-bottom:26px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 3px rgba(46,155,180,.2)}
+  .hero h1{font-size:clamp(52px,7.2vw,86px);font-weight:600;letter-spacing:-.02em}
+  .hero h1 .acc{color:var(--blue)}
+  .hero .lede{font-size:19px;color:var(--text-soft);max-width:490px;margin:24px 0 34px;line-height:1.6}
+  .hero .lede b{color:var(--text);font-weight:600}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .microcopy{font-family:var(--fm);font-size:12px;color:var(--text-soft);margin-top:18px;letter-spacing:.02em}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:40px}.hero{padding:52px 0 20px}}
+  .mock{background:var(--spruce);border-radius:18px;padding:20px;box-shadow:0 30px 60px -30px rgba(22,48,43,.5);position:relative}
+  .mock-head{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 16px;border-bottom:1px solid var(--paper-line)}
+  .mock-chan{font-family:var(--fm);font-size:13px;color:var(--paper);font-weight:700}
+  .mock-chan .hash{color:var(--sage)}
+  .mock-stat{font-family:var(--fm);font-size:10.5px;color:var(--sage);letter-spacing:.06em;text-transform:uppercase}
+  .msg{display:flex;gap:11px;padding:15px 4px 0}
+  .av{width:30px;height:30px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:var(--fb);font-weight:700;font-size:12px}
+  .av.person{background:var(--sage);color:var(--spruce)}
+  .av.bot{background:var(--blue);color:#052a32}
+  .msg-body{flex:1;min-width:0}
+  .msg-name{font-size:12.5px;font-weight:600;color:var(--paper)}
+  .msg-name .who{font-family:var(--fm);font-size:9.5px;color:var(--sage);margin-left:7px}
+  .msg-text{font-size:13.5px;color:var(--paper-soft);margin-top:3px;line-height:1.5}
+  .conf{display:inline-flex;align-items:center;gap:7px;margin-top:9px;font-family:var(--fm);font-size:10.5px;letter-spacing:.04em}
+  .conf .bar{width:64px;height:5px;border-radius:3px;background:rgba(238,232,219,.15);overflow:hidden}
+  .conf .fill{height:100%;border-radius:3px;width:0;transition:width .85s ease}
+  .conf.hi .fill{background:var(--blue-br)}
+  .conf.hi span{color:var(--blue-br)}
+  .the-line{position:relative;margin:20px 2px 6px;height:1px;background:rgba(142,134,176,.55)}
+  .the-line span{position:absolute;right:0;top:-9px;font-family:var(--fm);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--peri-br);background:var(--spruce);padding-left:8px}
+  .escalation{display:flex;gap:9px;align-items:flex-start;margin-top:12px;padding:11px 12px;background:rgba(217,138,120,.12);border:1px solid rgba(217,138,120,.32);border-radius:10px}
+  .escalation svg{flex:0 0 auto;margin-top:1px}
+  .escalation-text{font-size:12.5px;color:var(--paper);line-height:1.5}
+  .escalation-text b{color:var(--coral-br)}
+  .trust{padding:30px 0 8px}
+  .trust-label{font-family:var(--fm);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft);text-align:center;margin-bottom:20px}
+  .logos{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 44px;opacity:.72}
+  .logos span{font-family:var(--fd);font-weight:600;font-size:20px;color:var(--spruce)}
+  section{padding:96px 0}
+  .sec-head{max-width:660px;margin-bottom:56px}
+  .sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+  .sec-head h2{font-size:clamp(34px,4.6vw,50px);font-weight:600;letter-spacing:-.015em}
+  .sec-head h2 .soft{color:var(--sage)}
+  .sec-head p{font-size:18px;color:var(--text-soft);margin-top:16px;line-height:1.6}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 24px;transition:transform .18s ease,box-shadow .18s ease}
+  .step:hover{transform:translateY(-3px);box-shadow:0 16px 34px -24px rgba(22,48,43,.5)}
+  .step-n{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--blue-deep);letter-spacing:.1em}
+  .step .ic{width:44px;height:44px;border-radius:12px;background:var(--spruce);display:flex;align-items:center;justify-content:center;margin:16px 0 18px}
+  .step h3{font-size:20px;font-weight:600;margin:0 0 9px}
+  .step p{font-size:14.5px;color:var(--text-soft);line-height:1.55}
+  @media(max-width:820px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.steps{grid-template-columns:1fr}}
+  .line-sec{background:var(--spruce);color:var(--paper)}
+  .line-sec .eyebrow{color:var(--peri-br)}
+  .line-sec h2{color:var(--paper)}
+  .line-sec .sec-head p{color:var(--paper-soft)}
+  .line-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .thr-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+  .thr-q{font-size:15px;color:var(--paper);max-width:74%}
+  .thr-tag{font-family:var(--fm);font-size:11px;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+  .thr-tag.handled{color:var(--sage)}
+  .thr-tag.you{color:var(--coral-br)}
+  .thr-divider{position:relative;height:1px;background:rgba(142,134,176,.55);margin:8px 0}
+  .thr-divider .lbl{position:absolute;left:0;top:-10px;font-family:var(--fm);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--peri-br);background:var(--spruce);padding-right:10px}
+  .line-copy h3{color:var(--paper);font-size:25px;margin-bottom:14px}
+  .line-copy p{color:var(--paper-soft);font-size:16px;line-height:1.62;margin-bottom:16px}
+  .line-copy .knob{font-family:var(--fm);font-size:13px;color:var(--peri-br);border:1px solid rgba(142,134,176,.4);border-radius:8px;padding:10px 14px;display:inline-block;margin-top:6px}
+  @media(max-width:820px){.line-grid{grid-template-columns:1fr;gap:40px}}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px}
+  .feat .ic{width:38px;height:38px;border-radius:9px;background:rgba(46,155,180,.1);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .feat h3{font-size:18.5px;font-weight:600;margin-bottom:8px}
+  .feat p{font-size:14px;color:var(--text-soft);line-height:1.55}
+  @media(max-width:820px){.feat-grid{grid-template-columns:1fr}}
+  .persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .persona{border-top:2px solid var(--spruce);padding-top:22px}
+  .persona .role{font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue-deep)}
+  .persona h3{font-size:21px;font-weight:600;margin:12px 0 10px;line-height:1.15}
+  .persona p{font-size:14.5px;color:var(--text-soft);line-height:1.55;margin-bottom:16px}
+  .persona .asks{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .persona .asks li{font-size:13px;color:var(--text-soft);font-style:italic;padding-left:16px;position:relative}
+  .persona .asks li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--peri)}
+  @media(max-width:820px){.persona-grid{grid-template-columns:1fr}}
+  .stats-sec{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .stat .num{font-family:var(--fd);font-weight:600;font-size:clamp(40px,5vw,58px);color:var(--spruce);letter-spacing:-.02em;line-height:1}
+  .stat .num .u{color:var(--blue)}
+  .stat .lbl{font-size:13.5px;color:var(--text-soft);margin-top:12px;max-width:200px;line-height:1.4}
+  @media(max-width:820px){.stats{grid-template-columns:1fr 1fr;gap:34px 20px}}
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px;display:flex;flex-direction:column}
+  .plan.feat-plan{background:var(--spruce);color:var(--paper);border-color:var(--spruce)}
+  .plan .tier{font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-soft)}
+  .plan.feat-plan .tier{color:var(--blue-br)}
+  .plan .badge{float:right;font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#3a160d;background:var(--coral);padding:4px 9px;border-radius:100px;font-weight:700}
+  .plan .price{font-family:var(--fd);font-weight:600;font-size:44px;letter-spacing:-.02em;margin:18px 0 3px}
+  .plan .price .per{font-family:var(--fm);font-size:13px;font-weight:400;color:var(--text-soft);letter-spacing:0}
+  .plan.feat-plan .price .per{color:var(--sage)}
+  .plan ul{list-style:none;margin:22px 0 26px;display:flex;flex-direction:column;gap:11px;flex:1}
+  .plan li{font-size:14px;display:flex;gap:10px;align-items:flex-start;color:var(--text-soft)}
+  .plan.feat-plan li{color:var(--paper-soft)}
+  .plan li svg{flex:0 0 auto;margin-top:3px}
+  .plan .btn{width:100%;justify-content:center}
+  @media(max-width:820px){.price-grid{grid-template-columns:1fr}}
+  .final{background:var(--spruce);color:var(--paper);text-align:center}
+  .final h2{color:var(--paper);font-size:clamp(36px,5vw,58px);letter-spacing:-.02em;max-width:15ch;margin:0 auto}
+  .final h2 .soft{color:var(--sage)}
+  .final p{color:var(--paper-soft);font-size:18px;margin:22px auto 34px;max-width:460px}
+  .final .final-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .final .micro{font-family:var(--fm);font-size:12px;color:var(--sage);margin-top:22px}
+  footer{background:var(--spruce-deep);color:var(--paper-soft);padding:52px 0 40px}
+  .foot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;padding-bottom:34px;border-bottom:1px solid var(--paper-line)}
+  .foot-brand{font-family:var(--fd);font-weight:600;font-size:23px;color:var(--paper);display:flex;align-items:center;gap:10px}
+  .foot-tag{font-size:14px;color:var(--sage);margin-top:10px;max-width:280px}
+  .foot-cols{display:flex;gap:56px;flex-wrap:wrap}
+  .foot-col h4{font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:14px;font-weight:700}
+  .foot-col a{display:block;font-size:14px;color:var(--paper-soft);margin-bottom:9px}
+  .foot-col a:hover{color:var(--paper)}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding-top:26px;font-size:12.5px;color:var(--sage)}
+  .foot-bottom .note{font-family:var(--fm)}
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+  .mock-play > .msg, .mock-play > .the-line{opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
+  .mock-play > .msg.in, .mock-play > .the-line.in{opacity:1;transform:none}
+  .demo-app{max-width:100%;margin:0;border-radius:16px;overflow:hidden;border:1px solid rgba(238,232,219,.12);box-shadow:0 40px 90px -46px rgba(0,0,0,.65);background:#16302B;font-family:var(--fb);text-align:left}
+  .dm-bar{height:44px;background:#1E3E37;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid rgba(238,232,219,.1);position:relative}
+  .dm-bar .dot{width:11px;height:11px;border-radius:50%}
+  .dm-bar .r{background:#E5806B}.dm-bar .y{background:#E3B34E}.dm-bar .g{background:#8FBE7E}
+  .dm-title{position:absolute;left:0;right:0;text-align:center;font-family:var(--fm);font-size:12px;color:rgba(238,232,219,.5);letter-spacing:.02em}
+  .dm-body{display:grid;grid-template-columns:184px 1fr;min-height:300px}
+  .dm-side{background:#132A25;border-right:1px solid rgba(238,232,219,.09);padding:16px 13px;display:flex;flex-direction:column}
+  .dm-lbl{font-family:var(--fm);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(238,232,219,.4);margin:0 0 10px}
+  .dm-chan{display:flex;align-items:center;gap:9px;font-family:var(--fm);font-size:13px;color:#EEE8DB;font-weight:700;background:#24473F;border:1px solid rgba(63,176,200,.35);border-radius:9px;padding:11px 12px;margin-bottom:22px}
+  .dm-live{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .dm-src{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(238,232,219,.75);padding:8px 2px}
+  .dm-tag{font-family:var(--fm);font-size:10px;color:rgba(238,232,219,.5);background:rgba(238,232,219,.08);border-radius:5px;padding:2px 7px}
+  .dm-stats{margin-top:auto;border-top:1px solid rgba(238,232,219,.09);padding-top:14px;display:flex;flex-direction:column;gap:9px}
+  .dm-stats div{display:flex;justify-content:space-between;font-size:11.5px}
+  .dm-stats span{color:rgba(238,232,219,.55)}
+  .dm-stats b{font-family:var(--fm);color:#EEE8DB;font-weight:700}.dm-stats b.bl{color:#3FB0C8}
+  .dm-main{display:flex;flex-direction:column;background:#16302B}
+  .dm-head{padding:13px 18px;border-bottom:1px solid rgba(238,232,219,.09);font-family:var(--fm);font-size:14px;font-weight:700;color:#EEE8DB;display:flex;align-items:center;gap:12px}
+  .dm-status{display:inline-flex;align-items:center;gap:7px;font-family:var(--fm);font-size:11px;font-weight:400;color:#8FBE7E;letter-spacing:.02em}
+  .dm-status .dm-live{background:#8FBE7E;box-shadow:0 0 0 3px rgba(143,190,126,.18)}
+  .dm-feed{flex:1;padding:12px 18px 4px;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+  .dm-msg{display:flex;gap:11px;padding:8px 0;opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s ease}
+  .dm-msg.in{opacity:1;transform:none}
+  .dm-av{width:30px;height:30px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:var(--fb);font-weight:700;font-size:11px}
+  .dm-av.tm{background:rgba(238,232,219,.12);color:rgba(238,232,219,.72)}
+  .dm-av.bot{background:#2E9BB4}
+  .dm-c{min-width:0;flex:1}
+  .dm-n{font-size:13px;font-weight:600;color:#EEE8DB;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+  .dm-n.bl{color:#3FB0C8}
+  .dm-n span{font-family:var(--fm);font-size:10px;color:rgba(238,232,219,.4);font-weight:400}
+  .dm-t{font-size:13.5px;color:rgba(238,232,219,.82);line-height:1.45}
+  .dm-conf{display:flex;align-items:center;gap:10px;margin-top:9px;flex-wrap:wrap}
+  .dm-cl{font-family:var(--fm);font-size:10px;letter-spacing:.1em;color:rgba(238,232,219,.4)}
+  .dm-bar2{width:120px;height:5px;border-radius:3px;background:rgba(238,232,219,.12);overflow:hidden}
+  .dm-fill{height:100%;width:0;border-radius:3px;transition:width .85s ease}
+  .dm-fill.hi{background:#3FB0C8}.dm-fill.esc{background:#E29C8C}
+  .dm-pct{font-family:var(--fm);font-size:11px}.dm-pct.hi{color:#3FB0C8}.dm-pct.esc{color:#E29C8C}
+  .dm-input{margin:6px 18px 14px;border:1px solid rgba(238,232,219,.12);border-radius:9px;padding:12px 14px;font-family:var(--fm);font-size:13px;color:rgba(238,232,219,.4)}
+  .hero-copy.center{max-width:800px;margin:0 auto;text-align:center}
+  .hero-copy.center .lede{max-width:650px;margin:24px auto 32px}
+  .hero-copy.center .hero-actions{justify-content:center}
+  .hero-copy.center .microcopy{margin-top:18px}
+  @media(max-width:720px){.dm-body{grid-template-columns:1fr}.dm-side{display:none}}
+  #dashboard .dash{max-width:1040px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid rgba(238,232,219,.12);box-shadow:0 40px 90px -46px rgba(0,0,0,.6);background:#16302B}
+  #dashboard .dash-body{padding:22px}
+  #dashboard .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+  #dashboard .kpi{background:#1E3E37;border:1px solid rgba(238,232,219,.08);border-radius:12px;padding:16px 18px}
+  #dashboard .k-l{font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(238,232,219,.5)}
+  #dashboard .k-n{font-family:var(--fd);font-weight:600;font-size:34px;color:#EEE8DB;letter-spacing:-.02em;line-height:1.1;margin-top:6px}
+  #dashboard .k-n span{font-size:19px;color:rgba(238,232,219,.55)}
+  #dashboard .k-n.bl{color:#3FB0C8}
+  #dashboard .k-d{font-size:11.5px;color:rgba(238,232,219,.5);margin-top:5px}
+  #dashboard .k-d.up{color:#8FBE7E}
+  #dashboard .panel{background:#1E3E37;border:1px solid rgba(238,232,219,.08);border-radius:12px;padding:18px}
+  #dashboard .p-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+  #dashboard .p-h>span:first-child{font-family:var(--fd);font-weight:600;font-size:16px;color:#EEE8DB}
+  #dashboard .p-sub{font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(238,232,219,.42)}
+  #dashboard .chart-panel{margin-bottom:14px}
+  #dashboard .chart{display:flex;align-items:flex-end;gap:14px;height:150px;padding-top:6px}
+  #dashboard .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:3px}
+  #dashboard .seg{width:100%;border-radius:3px}
+  #dashboard .seg.hi{background:#2E9BB4}
+  #dashboard .seg.esc{background:#E29C8C}
+  #dashboard .legend{display:flex;gap:18px;margin-top:12px;font-size:11.5px;color:rgba(238,232,219,.6)}
+  #dashboard .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  #dashboard .trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  #dashboard .rows,#dashboard .qs,#dashboard .gaps{list-style:none;display:flex;flex-direction:column;gap:11px}
+  #dashboard .rows li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:rgba(238,232,219,.82)}
+  #dashboard .rows li b{margin-left:auto;font-family:var(--fm);color:#EEE8DB}
+  #dashboard .av2{width:26px;height:26px;border-radius:7px;background:rgba(238,232,219,.12);color:rgba(238,232,219,.75);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 auto}
+  #dashboard .qs li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:rgba(238,232,219,.82)}
+  #dashboard .qs li b{margin-left:auto;font-family:var(--fm);color:#3FB0C8}
+  #dashboard .q-rank{font-family:var(--fm);font-size:11px;color:rgba(238,232,219,.4);width:14px;flex:0 0 auto}
+  #dashboard .gaps li{display:flex;align-items:center;gap:10px;font-size:12.5px;color:rgba(238,232,219,.82);line-height:1.35}
+  #dashboard .add{margin-left:auto;flex:0 0 auto;font-family:var(--fm);font-size:10.5px;font-weight:700;color:#052a32;background:#3FB0C8;border:0;border-radius:6px;padding:5px 10px;cursor:pointer}
+  @media(max-width:820px){#dashboard .kpis{grid-template-columns:1fr 1fr}#dashboard .trio{grid-template-columns:1fr}}
+  h3{font-family:var(--fb);font-weight:700}
+  h1 span,h2 span{font-style:italic}
+  .lede,.sec-head p{font-family:var(--fs)}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="nm"><circle cx="50" cy="50" r="39"/></clipPath></defs><circle cx="50" cy="50" r="39" fill="none" stroke="#1E3E37" stroke-width="7"/><g clip-path="url(#nm)"><path d="M4 53 C29 40 40 40 50 50 C60 60 71 60 96 47" fill="none" stroke="#1E3E37" stroke-width="6" stroke-linecap="round"/></g><circle cx="63" cy="33" r="6.7" fill="#2E9BB4"/></svg>
+      Ondari
+    </a>
+    <nav class="nav-links"><a href="#how">How it works</a><a href="#dashboard">The Dashboard</a><a href="#features">Features</a><a href="#pricing">Pricing</a></nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary" href="#pricing">Try Ondari</a>
+    </div>
+  </div>
+</header>
+<a id="top"></a>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="pill"><span class="dot"></span>Now live in Slack</span>
+      <h1>Operate<br>like <span class="acc">ten.</span></h1>
+      <p class="lede">Ondari is an AI proxy that lives in your company Slack — <b>a parallel you</b> that fields and answers the repeated questions found in your documentation systems and conversation histories. It only taps you in when there's a genuine need for a human.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#pricing">Start for free <span class="arrow">→</span></a>
+        <a class="btn btn-ghost" href="#">Contact</a>
+      </div>
+      <p class="microcopy">14-day trial · no card · live in Slack in under 30 min</p>
+    </div>
+    <div class="demo-app reveal">
+      <div class="dm-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="dm-title">#ask-alex — Ondari</span></div>
+      <div class="dm-body">
+        <aside class="dm-side">
+          <div class="dm-lbl">Channel</div>
+          <div class="dm-chan"><span class="dm-live" style="background:#3FB0C8;box-shadow:0 0 0 3px rgba(63,176,200,.2)"></span>#ask-alex</div>
+          <div class="dm-lbl">Sources</div>
+          <div class="dm-src"><span>SOPs &amp; policies</span><span class="dm-tag">5</span></div>
+          <div class="dm-src"><span>Google Docs</span><span class="dm-tag">synced</span></div>
+          <div class="dm-src"><span>Slack history</span><span class="dm-tag">live</span></div>
+          <div class="dm-stats">
+            <div><span>Answered</span><b>127</b></div>
+            <div><span>Escalated</span><b>17</b></div>
+            <div><span>Avg conf.</span><b class="bl">81%</b></div>
+            <div><span>Time saved</span><b class="bl">6.4 hrs</b></div>
+          </div>
+        </aside>
+        <main class="dm-main">
+          <div class="dm-head">#ask-alex <span class="dm-status"><span class="dm-live"></span>Proxy active</span></div>
+          <div class="dm-feed">
+            <div class="dm-msg q"><div class="dm-av tm">JM</div><div class="dm-c"><div class="dm-n">Jordan M. <span>2:14 PM</span></div><div class="dm-t">When are OKR scores due this quarter?</div></div></div>
+            <div class="dm-msg a"><div class="dm-av bot"><svg viewBox="0 0 100 100" width="18" height="18" aria-hidden="true"><defs><clipPath id="dmb1"><circle cx="50" cy="50" r="39"/></clipPath></defs><circle cx="50" cy="50" r="39" fill="none" stroke="#EEE8DB" stroke-width="8"/><g clip-path="url(#dmb1)"><path d="M4 53 C29 40 40 40 50 50 C60 60 71 60 96 47" fill="none" stroke="#EEE8DB" stroke-width="7" stroke-linecap="round"/></g><circle cx="63" cy="33" r="7.5" fill="#EEE8DB"/></svg></div><div class="dm-c"><div class="dm-n bl">Ondari <span>answering on your behalf</span></div><div class="dm-t">Scoring is due 5 business days before the new quarter starts. Post your team update in #okrs by the 15th.</div><div class="dm-conf"><span class="dm-cl">CONFIDENCE</span><div class="dm-bar2"><div class="dm-fill hi" data-w="91"></div></div><span class="dm-pct hi">91% · OKR policy v3</span></div></div></div>
+            <div class="dm-msg q"><div class="dm-av tm">RT</div><div class="dm-c"><div class="dm-n">Riley T. <span>2:31 PM</span></div><div class="dm-t">Can you approve the $8k design agency invoice?</div></div></div>
+            <div class="dm-msg a"><div class="dm-av bot"><svg viewBox="0 0 100 100" width="18" height="18" aria-hidden="true"><defs><clipPath id="dmb2"><circle cx="50" cy="50" r="39"/></clipPath></defs><circle cx="50" cy="50" r="39" fill="none" stroke="#EEE8DB" stroke-width="8"/><g clip-path="url(#dmb2)"><path d="M4 53 C29 40 40 40 50 50 C60 60 71 60 96 47" fill="none" stroke="#EEE8DB" stroke-width="7" stroke-linecap="round"/></g><circle cx="63" cy="33" r="7.5" fill="#EEE8DB"/></svg></div><div class="dm-c"><div class="dm-n bl">Ondari <span>answering on your behalf</span></div><div class="dm-t">Escalating — this needs VP sign-off per the expense policy. Tagging @alex with the context.</div><div class="dm-conf"><span class="dm-cl">CONFIDENCE</span><div class="dm-bar2"><div class="dm-fill esc" data-w="24"></div></div><span class="dm-pct esc">24% · needs a human</span></div></div></div>
+          </div>
+          <div class="dm-input"># &nbsp; Message #ask-alex…</div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">How it works</span><h2>Set up once.<br><span class="soft">Then stay out of your own way.</span></h2><p>Your proxy handles the rest — answering from your knowledge, learning from every escalation, and interrupting you less over time.</p></div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-n">01</div><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#EEE8DB" stroke-width="1.7"/><path d="M3 9h18" stroke="#EEE8DB" stroke-width="1.7"/></svg></div><h3>Open your channel</h3><p>Install Ondari in Slack and name it (#ask-charlie, #hey-parker) — whoever your team already reaches for.</p></div>
+      <div class="step reveal"><div class="step-n">02</div><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="#EEE8DB" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h3>Feed it what you know</h3><p>Drop in your SOPs, connect Google Docs, pull Slack history. The more context, the smarter the proxy.</p></div>
+      <div class="step reveal"><div class="step-n">03</div><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.3 5.4L20 10l-5.7 1.6L12 17l-2.3-5.4L4 10l5.7-1.6L12 3Z" stroke="#EEE8DB" stroke-width="1.6" stroke-linejoin="round"/></svg></div><h3>It answers. You don't.</h3><p>Every reply lands with a confidence score and the source it came from.</p></div>
+      <div class="step reveal"><div class="step-n">04</div><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#EEE8DB" stroke-width="1.6"/><path d="M12 16.5V8M8.5 11.5 12 8l3.5 3.5" stroke="#EEE8DB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>It learns the edges</h3><p>Every escalation you resolve becomes an answer next time. The handle rate climbs; your distractions fall; your focus time is protected.</p></div>
+    </div>
+  </div>
+</section>
+<section id="line" class="line-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">The line</span><h2>It knows what it<br>doesn't know.</h2><p>Most chatbots guess. Ondari draws a line — and only crosses it when a question genuinely needs you.</p></div>
+    <div class="line-grid">
+      <div class="threshold reveal">
+        <div class="thr-row"><div class="thr-q">"What's the vendor onboarding process?"</div><div class="thr-tag handled">HANDLED · 94%</div></div>
+        <div class="thr-row"><div class="thr-q">"When are OKRs due this quarter?"</div><div class="thr-tag handled">HANDLED · 90%</div></div>
+        <div class="thr-row"><div class="thr-q">"Who approves contractor invoices over $10k?"</div><div class="thr-tag handled">HANDLED · 86%</div></div>
+        <div class="thr-divider"><span class="lbl">your threshold — 65%</span></div>
+        <div class="thr-row"><div class="thr-q">"Should we counter on the Meridian contract?"</div><div class="thr-tag you">→ YOU · 22%</div></div>
+      </div>
+      <div class="line-copy reveal">
+        <h3>You set the threshold. It respects it.</h3>
+        <p>Every response carries a confidence score from 0–100%. Above your line, Ondari answers and cites its source. Below it, it tags you once — in the thread, with the reason it couldn't answer — and never guesses in your name.</p>
+        <p>Pin certain topics to always route to you, regardless of confidence: budget calls, personnel, anything that should never be automatic.</p>
+        <span class="knob">confidence &lt; 65% &nbsp;→&nbsp; escalate to @you</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="dashboard">
+  <div class="wrap">
+    <div class="sec-head center"><span class="eyebrow">The dashboard</span><h2>The inside view.</h2><p>Beyond the channel, Ondari gives you an operator\'s dashboard — what\'s getting answered, what pulls you in, who keeps asking, and what to teach your proxy next.</p></div>
+    <div class="dash reveal">
+      <div class="dm-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="dm-title">Ondari — Dashboard</span></div>
+      <div class="dash-body">
+        <div class="kpis">
+          <div class="kpi"><div class="k-l">Questions answered</div><div class="k-n">1,284</div><div class="k-d up">+18% this month</div></div>
+          <div class="kpi"><div class="k-l">Hours saved</div><div class="k-n">47.5<span>h</span></div><div class="k-d up">&#8776; 6 workdays</div></div>
+          <div class="kpi"><div class="k-l">Pulled you in</div><div class="k-n">112</div><div class="k-d">8.7% of questions</div></div>
+          <div class="kpi"><div class="k-l">Avg confidence</div><div class="k-n bl">84<span>%</span></div><div class="k-d up">+3 pts</div></div>
+        </div>
+        <div class="panel chart-panel">
+          <div class="p-h"><span>Answered vs. escalated</span><span class="p-sub">last 8 weeks</span></div>
+          <div class="chart">
+            <div class="col"><span class="seg esc" style="height:9px"></span><span class="seg hi" style="height:78px"></span></div>
+            <div class="col"><span class="seg esc" style="height:8px"></span><span class="seg hi" style="height:90px"></span></div>
+            <div class="col"><span class="seg esc" style="height:11px"></span><span class="seg hi" style="height:84px"></span></div>
+            <div class="col"><span class="seg esc" style="height:8px"></span><span class="seg hi" style="height:102px"></span></div>
+            <div class="col"><span class="seg esc" style="height:10px"></span><span class="seg hi" style="height:95px"></span></div>
+            <div class="col"><span class="seg esc" style="height:7px"></span><span class="seg hi" style="height:114px"></span></div>
+            <div class="col"><span class="seg esc" style="height:8px"></span><span class="seg hi" style="height:106px"></span></div>
+            <div class="col"><span class="seg esc" style="height:6px"></span><span class="seg hi" style="height:120px"></span></div>
+          </div>
+          <div class="legend"><span><i style="background:#2E9BB4"></i>Answered</span><span><i style="background:#E29C8C"></i>Escalated</span></div>
+        </div>
+        <div class="trio">
+          <div class="panel">
+            <div class="p-h"><span>Top askers</span></div>
+            <ul class="rows">
+              <li><span class="av2">JM</span>Jordan M.<b>214</b></li>
+              <li><span class="av2">RT</span>Riley T.<b>168</b></li>
+              <li><span class="av2">PN</span>Priya N.<b>142</b></li>
+              <li><span class="av2">DK</span>Devin K.<b>97</b></li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="p-h"><span>Top questions</span></div>
+            <ul class="qs">
+              <li><span class="q-rank">1</span>Expense &amp; reimbursement policy<b>86</b></li>
+              <li><span class="q-rank">2</span>PTO &amp; time-off requests<b>71</b></li>
+              <li><span class="q-rank">3</span>Vendor onboarding steps<b>64</b></li>
+              <li><span class="q-rank">4</span>OKR timeline &amp; format<b>52</b></li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="p-h"><span>Add to the brain</span><span class="p-sub">7 gaps</span></div>
+            <ul class="gaps">
+              <li>&ldquo;What&#8217;s the 2026 travel budget?&rdquo;<button class="add">+ Add</button></li>
+              <li>&ldquo;Who owns the SOC 2 review?&rdquo;<button class="add">+ Add</button></li>
+              <li>&ldquo;How do I request a contractor?&rdquo;<button class="add">+ Add</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">The whole platform</span><h2>Not just a chatbot.</h2><p>A complete proxy system — knowledge, escalation, analytics, and deep integrations, built in.</p></div>
+    <div class="feat-grid">
+      <div class="feat reveal"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H7l-3 3V5Z" stroke="#1E3E37" stroke-width="1.6" stroke-linejoin="round"/></svg></div><h3>Live Slack proxy</h3><p>A real channel your team can message. Answers come with confidence scores, source citations, and a clean escalation trail.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 4h11l3 3v13H5V4Z" stroke="#1E3E37" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12h6M9 15h4" stroke="#1E3E37" stroke-width="1.6" stroke-linecap="round"/></svg></div><h3>Knowledge base</h3><p>Add docs, SOPs, email threads, or Slack messages as context. See which sources get cited most — and which are going stale.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 18 10 8l4 5 6-9" stroke="#1E3E37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>Confidence-based escalation</h3><p>Set your threshold. Ondari escalates when it's unsure — tagging you once, in-thread, with the reason it stopped.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6" stroke="#1E3E37" stroke-width="1.6" stroke-linecap="round"/></svg></div><h3>Analytics</h3><p>See exactly how much time your proxy saves — questions answered, handle rate, confidence trends, and the topics coming up most.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h9" stroke="#1E3E37" stroke-width="1.6" stroke-linecap="round"/><circle cx="18" cy="18" r="2.4" stroke="#D98A78" stroke-width="1.6"/></svg></div><h3>Escalation review queue</h3><p>Every escalation lands in a queue. Resolve it, or "add answer to knowledge" to teach the proxy so it handles it next time.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 15 15 9M8 8 6 10a3.5 3.5 0 0 0 5 5M16 16l2-2a3.5 3.5 0 0 0-5-5" stroke="#1E3E37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>9+ integrations</h3><p>Gmail, Slack history, Google Drive, Notion, Linear, HubSpot, Confluence, Zoom transcripts, and Calendar.</p></div>
+    </div>
+  </div>
+</section>
+<section style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Built for you, specifically</span><h2>The person everyone<br><span class="soft">comes to.</span></h2><p>If you're the connective tissue of your org — the one who knows the answer to everything — Ondari is for you.</p></div>
+    <div class="persona-grid">
+      <div class="persona reveal"><div class="role">Chief of Staff</div><h3>You know where everything is. Now everyone else can find it too.</h3><p>Ondari fields the process questions, policy lookups, and "who do I talk to" redirects — so you stay in strategic mode.</p><ul class="asks"><li>"What's the vendor onboarding process?"</li><li>"When are OKRs due?"</li><li>"How do I prep for the board meeting?"</li></ul></div>
+      <div class="persona reveal"><div class="role">Executive Assistant</div><h3>Your job is to protect the exec's time. Ondari protects yours.</h3><p>Answer the repetitive requests automatically. Escalate the ones that actually need a human. Get your focus back.</p><ul class="asks"><li>"Is Thursday afternoon free for a call?"</li><li>"What's the travel policy for conferences?"</li><li>"Who approves contractor invoices?"</li></ul></div>
+      <div class="persona reveal"><div class="role">Founder / Head of Ops</div><h3>You're the team's Wikipedia. Time to make that automatic.</h3><p>At 20 people you still answer every question. Ondari lets you delegate institutional knowledge without another hire.</p><ul class="asks"><li>"What's our hiring process for engineers?"</li><li>"How do I submit a purchase request?"</li><li>"What's the deal with the new equity plan?"</li></ul></div>
+    </div>
+  </div>
+</section>
+<section class="stats-sec">
+  <div class="wrap">
+    <div class="sec-head center"><span class="eyebrow">What changes when the pings stop</span><h2>The math of a team of one.</h2></div>
+    <div class="stats">
+      <div class="stat reveal"><div class="num">88<span class="u">%</span></div><div class="lbl">of questions handled without you</div></div>
+      <div class="stat reveal"><div class="num">6.4<span class="u">h</span></div><div class="lbl">average time saved per month</div></div>
+      <div class="stat reveal"><div class="num">3<span class="u">m</span></div><div class="lbl">avg response vs 47 min for a human</div></div>
+      <div class="stat reveal"><div class="num">115<span class="u">%</span></div><div class="lbl">net revenue retention in beta</div></div>
+    </div>
+  </div>
+</section>
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head center"><span class="eyebrow">Pricing</span><h2>Simple, honest, cancel anytime.</h2><p>Every plan includes a 14-day free trial. No card required to start.</p></div>
+    <div class="price-grid">
+      <div class="plan reveal">
+        <div class="tier">Starter</div><div class="price">$29 <span class="per">/mo · per proxy</span></div>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>1 proxy channel</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>5 knowledge sources</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>500 answers / month</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Email escalation</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Basic analytics</li>
+        </ul>
+        <a class="btn btn-ghost" href="#">Start free trial</a>
+      </div>
+      <div class="plan feat-plan reveal">
+        <span class="badge">Most popular</span><div class="tier">Pro</div><div class="price">$79 <span class="per">/mo · per proxy</span></div>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#3FB0C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited knowledge sources</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#3FB0C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>2,000 answers / month</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#3FB0C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>All 9+ integrations</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#3FB0C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Slack escalation tagging</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#3FB0C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Full analytics + review queue</li>
+        </ul>
+        <a class="btn btn-primary" href="#">Start free trial</a>
+      </div>
+      <div class="plan reveal">
+        <div class="tier">Team</div><div class="price">$199 <span class="per">/mo · 5 proxies</span></div>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>5 proxies included</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Shared knowledge base</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Admin dashboard</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Priority support</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="#1E3E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>SSO / SAML</li>
+        </ul>
+        <a class="btn btn-ghost" href="#">Start free trial</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="final">
+  <div class="wrap">
+    <h2>Your team has questions. Your <span class="soft">proxy</span> has answers.</h2>
+    <p>Start free. No card. Your Ondari is live in Slack in under 30 minutes.</p>
+    <div class="final-actions"><a class="btn btn-primary" href="#pricing">Start for free <span class="arrow">→</span></a><a class="btn btn-ghost" href="#" style="color:var(--paper);border-color:var(--paper-line)">Contact</a></div>
+    <p class="micro">14-day trial · cancel anytime · SOC 2 compliant</p>
+  </div>
+</section>
+<script>
+  (function(){
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')}); return; }
+    var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }); },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+  })();
+</script>
+<script>
+(function(){
+  var app=document.querySelector('.demo-app'); if(!app) return;
+  var steps=[].slice.call(app.querySelectorAll('.dm-msg'));
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function fill(m){var f=m.querySelector('.dm-fill'); if(f) f.style.width=f.getAttribute('data-w')+'%';}
+  if(reduce){steps.forEach(function(m){m.classList.add('in');fill(m);});return;}
+  var timers=[];
+  function clearT(){timers.forEach(clearTimeout);timers=[];}
+  function reset(){steps.forEach(function(m){m.classList.remove('in');var f=m.querySelector('.dm-fill');if(f)f.style.width='0';});}
+  function play(){
+    clearT();reset();
+    var t=300;
+    steps.forEach(function(m){
+      t += m.classList.contains('a')?700:900;
+      (function(mm,tt){ timers.push(setTimeout(function(){ mm.classList.add('in'); timers.push(setTimeout(function(){fill(mm);},250)); },tt)); })(m,t);
+    });
+    timers.push(setTimeout(play,t+3600));
+  }
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting){play();} else {clearT();} });},{threshold:.25});
+  io.observe(app);
+})();
+</script>
+</body>
+</html>
