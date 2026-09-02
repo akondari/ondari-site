@@ -1,6 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://getondari.ai/#org",
+      "name": "Ondari",
+      "url": "https://getondari.ai/",
+      "logo": "https://getondari.ai/assets/favicon-512.png",
+      "email": "hello@getondari.ai",
+      "description": "Ondari builds an AI proxy that lives in your company Slack, answering your team's repeated questions from your documentation and conversation history."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://getondari.ai/#website",
+      "url": "https://getondari.ai/",
+      "name": "Ondari",
+      "publisher": { "@id": "https://getondari.ai/#org" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Ondari",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, Slack",
+      "url": "https://getondari.ai/",
+      "publisher": { "@id": "https://getondari.ai/#org" },
+      "description": "An AI proxy in Slack that answers on your behalf from your docs, email, and Slack history, with a confidence score on every reply, and escalates to you when it isn't sure.",
+      "featureList": [
+        "Live Slack proxy channel",
+        "Knowledge base from docs, SOPs, email and Slack history",
+        "Confidence-based escalation with a configurable threshold",
+        "Escalation review queue",
+        "Analytics dashboard",
+        "Integrations with Gmail, Google Drive, Notion, Linear, HubSpot, Confluence, Zoom and Calendar"
+      ],
+      "offers": [
+        { "@type": "Offer", "name": "Starter", "price": "29", "priceCurrency": "USD" },
+        { "@type": "Offer", "name": "Pro", "price": "79", "priceCurrency": "USD" },
+        { "@type": "Offer", "name": "Team", "price": "199", "priceCurrency": "USD" }
+      ]
+    }
+  ]
+}
+</script>
+  <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Google tag (gtag.js) -->
