@@ -277,12 +277,23 @@
   h3{font-family:var(--fb);font-weight:700}
   h1 span,h2 span{font-style:italic}
   .lede,.sec-head p{font-family:var(--fs)}
-  .faq-list{max-width:820px;margin:0 auto;display:flex;flex-direction:column}
-  .faq-item{border-top:1px solid var(--line);padding:26px 0}
-  .faq-item:last-child{border-bottom:1px solid var(--line)}
-  .faq-item h3{font-family:var(--fb);font-size:19px;font-weight:700;letter-spacing:-.005em;margin-bottom:10px;color:var(--text)}
-  .faq-item p{font-size:15.5px;color:var(--text-soft);line-height:1.62;max-width:70ch}
-  .faq-item p + p{margin-top:10px}
+  .faq-list{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq-item{background:var(--card);border:1px solid var(--line);border-radius:12px;transition:border-color .18s ease,box-shadow .18s ease}
+  .faq-item[open]{border-color:var(--line-strong);box-shadow:0 10px 26px -22px rgba(22,48,43,.55)}
+  .faq-item summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px}
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary:hover h3{color:var(--blue-deep)}
+  .faq-item summary h3{font-family:var(--fb);font-size:17.5px;font-weight:700;letter-spacing:-.005em;color:var(--text);line-height:1.35;transition:color .18s ease}
+  .faq-chev{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;transition:transform .22s ease,background .18s ease}
+  .faq-item[open] .faq-chev{transform:rotate(180deg);background:var(--spruce);border-color:var(--spruce)}
+  .faq-chev svg{display:block}
+  .faq-chev path{stroke:var(--spruce)}
+  .faq-item[open] .faq-chev path{stroke:var(--paper)}
+  .faq-a{padding:0 24px 22px}
+  .faq-a p{font-size:15.5px;color:var(--text-soft);line-height:1.62;max-width:70ch}
+  .faq-a p + p{margin-top:10px}
+  @media (prefers-reduced-motion:reduce){.faq-item,.faq-chev{transition:none}}
+  @media(max-width:560px){.faq-item summary{padding:17px 18px;gap:14px}.faq-a{padding:0 18px 18px}.faq-item summary h3{font-size:16.5px}}
 </style>
 <script type="application/ld+json">
 {
@@ -572,46 +583,62 @@
     <div class="sec-head center"><span class="eyebrow">FAQ</span><h2>Questions, answered.</h2></div>
     <div class="faq-list">
 
-      <div class="faq-item">
-        <h3>What is Ondari?</h3>
-        <p>Ondari is an AI proxy that lives in your company Slack. It sits in a channel your team already messages you in, answers the repeated questions it can find in your documentation and conversation history, and tags you in only when a question genuinely needs a human.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>What is Ondari?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Ondari is an AI proxy that lives in your company Slack. It sits in a channel your team already messages you in, answers the repeated questions it can find in your documentation and conversation history, and tags you in only when a question genuinely needs a human.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>How does Ondari decide when to escalate to a human?</h3>
-        <p>Every Ondari response carries a confidence score from 0 to 100%. You set the threshold — 65% by default. Above your line, Ondari answers and cites the source it used. Below it, Ondari stays quiet, tags you once in the thread with the reason it stopped, and never guesses in your name.</p>
-        <p>You can also pin specific topics to always route to you regardless of confidence, such as budget decisions, personnel matters, or anything that should never be automatic.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>How does Ondari decide when to escalate to a human?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Every Ondari response carries a confidence score from 0 to 100%. You set the threshold — 65% by default. Above your line, Ondari answers and cites the source it used. Below it, Ondari stays quiet, tags you once in the thread with the reason it stopped, and never guesses in your name.</p>
+          <p>You can also pin specific topics to always route to you regardless of confidence, such as budget decisions, personnel matters, or anything that should never be automatic.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>Where does Ondari get its answers?</h3>
-        <p>Ondari answers from the knowledge you give it: SOPs and internal policies, connected Google Docs, past email threads, and your existing Slack history. Every answer cites the source it came from, so your team can check the original document rather than taking the reply on faith.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>Where does Ondari get its answers?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Ondari answers from the knowledge you give it: SOPs and internal policies, connected Google Docs, past email threads, and your existing Slack history. Every answer cites the source it came from, so your team can check the original document rather than taking the reply on faith.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>What tools does Ondari integrate with?</h3>
-        <p>Ondari connects to nine or more tools, including Gmail, Slack history, Google Drive, Notion, Linear, HubSpot, Confluence, Zoom transcripts, and Google Calendar. Starter plans include five knowledge sources; Pro and Team plans include unlimited sources and all integrations.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>What tools does Ondari integrate with?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Ondari connects to nine or more tools, including Gmail, Slack history, Google Drive, Notion, Linear, HubSpot, Confluence, Zoom transcripts, and Google Calendar. Starter plans include five knowledge sources; Pro and Team plans include unlimited sources and all integrations.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>How long does setup take?</h3>
-        <p>Most teams have Ondari live in Slack in under 30 minutes. You install the app, name the channel your team already reaches for, then point Ondari at your documents. The proxy starts answering immediately and gets more accurate as you resolve escalations.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>How long does setup take?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Most teams have Ondari live in Slack in under 30 minutes. You install the app, name the channel your team already reaches for, then point Ondari at your documents. The proxy starts answering immediately and gets more accurate as you resolve escalations.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>Does Ondari get better over time?</h3>
-        <p>Yes. Every escalation you resolve becomes an answer Ondari can give on its own next time. Unanswered questions collect in a review queue alongside a list of knowledge gaps, so you can see exactly what to teach the proxy next. The handle rate climbs and the interruptions fall.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>Does Ondari get better over time?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Yes. Every escalation you resolve becomes an answer Ondari can give on its own next time. Unanswered questions collect in a review queue alongside a list of knowledge gaps, so you can see exactly what to teach the proxy next. The handle rate climbs and the interruptions fall.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>Who is Ondari for?</h3>
-        <p>Ondari is built for the person everyone comes to: Chiefs of Staff, Executive Assistants, founders, and Heads of Operations. If you are the connective tissue of your organization and spend your day answering the same process, policy, and "who do I talk to" questions, Ondari handles that traffic for you.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>Who is Ondari for?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Ondari is built for the person everyone comes to: Chiefs of Staff, Executive Assistants, founders, and Heads of Operations. If you are the connective tissue of your organization and spend your day answering the same process, policy, and "who do I talk to" questions, Ondari handles that traffic for you.</p>
+        </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>How much does Ondari cost?</h3>
-        <p>Ondari starts at $29 per month per proxy for Starter, $79 per month for Pro, and $199 per month for Team, which includes five proxies. Every plan comes with a 14-day free trial and no credit card is required to start. You can cancel at any time.</p>
-      </div>
+      <details class="faq-item">
+        <summary><h3>How much does Ondari cost?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Ondari starts at $29 per month per proxy for Starter, $79 per month for Pro, and $199 per month for Team, which includes five proxies. Every plan comes with a 14-day free trial and no credit card is required to start. You can cancel at any time.</p>
+        </div>
+      </details>
 
     </div>
   </div>
@@ -630,6 +657,17 @@
     var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }); },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
     document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
   })();
+</script>
+<script>
+(function(){
+  var items=[].slice.call(document.querySelectorAll('.faq-item'));
+  items.forEach(function(d){
+    d.addEventListener('toggle',function(){
+      if(!d.open) return;
+      items.forEach(function(o){ if(o!==d) o.open=false; });
+    });
+  });
+})();
 </script>
 <script>
 (function(){
