@@ -352,6 +352,7 @@
     {"@type":"Question","name":"How long does setup take?","acceptedAnswer":{"@type":"Answer","text":"Most teams have Ondari live in Slack in under 30 minutes. You install the app, name the channel your team already reaches for, then point Ondari at your documents. The proxy starts answering immediately and gets more accurate as you resolve escalations."}},
     {"@type":"Question","name":"Does Ondari get better over time?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every escalation you resolve becomes an answer Ondari can give on its own next time. Unanswered questions collect in a review queue alongside a list of knowledge gaps, so you can see exactly what to teach the proxy next. The handle rate climbs and the interruptions fall."}},
     {"@type":"Question","name":"Who is Ondari for?","acceptedAnswer":{"@type":"Answer","text":"Ondari is built for the person everyone comes to: Chiefs of Staff, Executive Assistants, founders, and Heads of Operations. If you are the connective tissue of your organization and spend your day answering the same process, policy, and who-do-I-talk-to questions, Ondari handles that traffic for you."}},
+    {"@type":"Question","name":"Is our data secure, and do you train on it?","acceptedAnswer":{"@type":"Answer","text":"Ondari does not use your data to train models. Your knowledge base is scoped to your workspace and is only read to answer questions in your own Slack channel. Data is hosted on Google Cloud Platform and encrypted in transit and at rest. No one at Ondari accesses your content in normal operations; access is limited to support and debugging at your request. If you cancel, your data is deleted from live systems within two business days, with encrypted backups aging out shortly after. SOC 2 certification is in progress."}},
     {"@type":"Question","name":"How much does Ondari cost?","acceptedAnswer":{"@type":"Answer","text":"Ondari starts at $29 per month per proxy for Starter, $79 per month for Pro, and $199 per month for Team, which includes five proxies. Every plan comes with a 14-day free trial and no credit card is required to start. You can cancel at any time."}}
   ]
 }
@@ -630,6 +631,15 @@
         <summary><h3>Who is Ondari for?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
         <div class="faq-a">
           <p>Ondari is built for the person everyone comes to: Chiefs of Staff, Executive Assistants, founders, and Heads of Operations. If you are the connective tissue of your organization and spend your day answering the same process, policy, and "who do I talk to" questions, Ondari handles that traffic for you.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><h3>Is our data secure, and do you train on it?</h3><span class="faq-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary>
+        <div class="faq-a">
+          <p>Ondari does not use your data to train models. Your knowledge base is scoped to your workspace and is only read to answer questions in your own Slack channel — it is never shared with other customers or used to improve answers for anyone else.</p>
+          <p>Data is hosted on Google Cloud Platform and encrypted both in transit and at rest. No one at Ondari accesses your content in the course of normal operations; access is limited to what is required for support and debugging, and only at your request.</p>
+          <p>If you cancel, your knowledge base and connected data are deleted from live systems within two business days. Encrypted backups age out on their own retention schedule shortly after. SOC 2 certification is in progress — reach out at hello@getondari.ai if you need current details for a security review.</p>
         </div>
       </details>
 
