@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://getondari.ai/sitemap.xml
